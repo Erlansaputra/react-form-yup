@@ -1,25 +1,30 @@
-import React from "react";
+import React, {useState,useEffect}from "react";
 import "./App.css";
 import { useForm } from "react-hook-form";
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup'
-
-function later(delay: number) {
-  return new Promise(function (resolve) {
-    setTimeout(resolve, delay);
-  });
-}
+import {css} from '@emotion/css'
+import ClipLoader from 'react-spinners/ClipLoader'
 
 type FormInputs = {
   fullName: string;
 };
-
 
 const validationSchema = yup.object().shape({
   fullName: yup.string().required()
 })
 
 function Form() {
+  let [loading, setLoading] = useState(false)
+  let [color, setColor] = useState('#bf1650')
+
+  function later(delay : number) {
+    return new Promise(function(resolve) {
+      setLoading(loading = true)
+      setTimeout(resolve,delay)
+    })
+  }
+
   const {
     register,
     handleSubmit,
@@ -30,10 +35,17 @@ function Form() {
     mode:'onSubmit',
     resolver: yupResolver(validationSchema)
   });
+
+  const override = css`
+  display: block;
+  margin: 0 auto;
+  border-color: red;
+`;
+  
   const onSubmit = async (data: FormInputs) => {
-    console.log(data);
-    await later(3000);
-    alert("Thank you for Register");
+    await later(3000)
+    setLoading(loading = false)
+    alert(data.fullName)
     reset();
   };
   return (
@@ -55,7 +67,12 @@ function Form() {
           onClick={handleSubmit(onSubmit)}
           disabled={formState.isSubmitting}
         >
-          Sign Up
+          {
+            loading ? 
+            <ClipLoader color={color} loading={loading} css={override} size={10} />
+            :
+            'Sign Up'
+          }
         </button>
       </form>
     </div>
